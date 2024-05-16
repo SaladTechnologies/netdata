@@ -4,6 +4,7 @@ package example
 
 import (
 	"fmt"
+
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
