@@ -18,12 +18,7 @@ func (e *Example) collect() (map[string]int64, error) {
 }
 
 func (e *Example) collectChart(collected map[string]int64, chart *module.Chart) {
-	var num int
-	if chart.Opts.Hidden {
-		num = e.Config.HiddenCharts.Dims
-	} else {
-		num = e.Config.Charts.Dims
-	}
+	num := e.Config.Charts.Dims
 
 	for i := 0; i < num; i++ {
 		name := fmt.Sprintf("random%d", i)

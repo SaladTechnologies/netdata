@@ -4,6 +4,7 @@ package example
 
 import (
 	"errors"
+
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
@@ -35,20 +36,6 @@ func (e *Example) initCharts() (*module.Charts, error) {
 			return nil, err
 		}
 	}
-
-	ctx = 0
-	v = calcContextEvery(e.Config.HiddenCharts.Num, e.Config.HiddenCharts.Contexts)
-	for i := 0; i < e.Config.HiddenCharts.Num; i++ {
-		if i != 0 && v != 0 && ctx < (e.Config.HiddenCharts.Contexts-1) && i%v == 0 {
-			ctx++
-		}
-		chart := newHiddenChart(i, ctx, e.Config.HiddenCharts.Labels, module.ChartType(e.Config.HiddenCharts.Type))
-
-		if err := charts.Add(chart); err != nil {
-			return nil, err
-		}
-	}
-
 	return charts, nil
 }
 
