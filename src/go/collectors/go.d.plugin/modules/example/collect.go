@@ -8,7 +8,7 @@ import (
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
-func (e *Example) collect() (map[string]int64, error) {
+func (e *SaladGateway) collect() (map[string]int64, error) {
 	collected := make(map[string]int64)
 
 	for _, chart := range *e.Charts() {
@@ -17,7 +17,7 @@ func (e *Example) collect() (map[string]int64, error) {
 	return collected, nil
 }
 
-func (e *Example) collectChart(collected map[string]int64, chart *module.Chart) {
+func (e *SaladGateway) collectChart(collected map[string]int64, chart *module.Chart) {
 	num := e.Config.Charts.Dims
 
 	for i := 0; i < num; i++ {

@@ -27,13 +27,13 @@ func Test_testDataIsValid(t *testing.T) {
 }
 
 func TestExample_ConfigurationSerialize(t *testing.T) {
-	module.TestConfigurationSerialize(t, &Example{}, dataConfigJSON, dataConfigYAML)
+	module.TestConfigurationSerialize(t, &SaladGateway{}, dataConfigJSON, dataConfigYAML)
 }
 
 func TestNew(t *testing.T) {
 	// We want to ensure that module is a reference type, nothing more.
 
-	assert.IsType(t, (*Example)(nil), New())
+	assert.IsType(t, (*SaladGateway)(nil), New())
 }
 
 func TestExample_Init(t *testing.T) {
@@ -133,7 +133,7 @@ func TestExample_Check(t *testing.T) {
 
 	// 'test' map contains different test cases.
 	tests := map[string]struct {
-		prepare  func() *Example
+		prepare  func() *SaladGateway
 		wantFail bool
 	}{
 		"success on default":                            {prepare: prepareExampleDefault},
@@ -162,17 +162,17 @@ func TestExample_Charts(t *testing.T) {
 
 	// 'test' map contains different test cases.
 	tests := map[string]struct {
-		prepare func(t *testing.T) *Example
+		prepare func(t *testing.T) *SaladGateway
 		wantNil bool
 	}{
 		"not initialized collector": {
 			wantNil: true,
-			prepare: func(t *testing.T) *Example {
+			prepare: func(t *testing.T) *SaladGateway {
 				return New()
 			},
 		},
 		"initialized collector": {
-			prepare: func(t *testing.T) *Example {
+			prepare: func(t *testing.T) *SaladGateway {
 				example := New()
 				require.NoError(t, example.Init())
 				return example
@@ -208,7 +208,7 @@ func TestExample_Collect(t *testing.T) {
 
 	// 'test' map contains different test cases.
 	tests := map[string]struct {
-		prepare       func() *Example
+		prepare       func() *SaladGateway
 		wantCollected map[string]int64
 	}{
 		"default config": {
@@ -290,7 +290,7 @@ func TestExample_Collect(t *testing.T) {
 	}
 }
 
-func ensureCollectedHasAllChartsDimsVarsIDs(t *testing.T, e *Example, collected map[string]int64) {
+func ensureCollectedHasAllChartsDimsVarsIDs(t *testing.T, e *SaladGateway, collected map[string]int64) {
 	for _, chart := range *e.Charts() {
 		if chart.Obsolete {
 			continue
@@ -308,11 +308,11 @@ func ensureCollectedHasAllChartsDimsVarsIDs(t *testing.T, e *Example, collected 
 	}
 }
 
-func prepareExampleDefault() *Example {
+func prepareExampleDefault() *SaladGateway {
 	return prepareExample(New().Config)
 }
 
-func prepareExampleOnlyCharts() *Example {
+func prepareExampleOnlyCharts() *SaladGateway {
 	return prepareExample(Config{
 		Charts: ConfigCharts{
 			Num:  2,
@@ -321,7 +321,7 @@ func prepareExampleOnlyCharts() *Example {
 	})
 }
 
-func prepareExampleOnlyHiddenCharts() *Example {
+func prepareExampleOnlyHiddenCharts() *SaladGateway {
 	return prepareExample(Config{
 		HiddenCharts: ConfigCharts{
 			Num:  2,
@@ -330,7 +330,7 @@ func prepareExampleOnlyHiddenCharts() *Example {
 	})
 }
 
-func prepareExampleChartsAndHiddenCharts() *Example {
+func prepareExampleChartsAndHiddenCharts() *SaladGateway {
 	return prepareExample(Config{
 		Charts: ConfigCharts{
 			Num:  2,
@@ -343,7 +343,7 @@ func prepareExampleChartsAndHiddenCharts() *Example {
 	})
 }
 
-func prepareExample(cfg Config) *Example {
+func prepareExample(cfg Config) *SaladGateway {
 	example := New()
 	example.Config = cfg
 	example.randInt = func() int64 { return 1 }

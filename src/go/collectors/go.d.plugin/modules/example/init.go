@@ -8,7 +8,7 @@ import (
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
-func (e *Example) validateConfig() error {
+func (e *SaladGateway) validateConfig() error {
 	if e.Config.Charts.Num <= 0 && e.Config.HiddenCharts.Num <= 0 {
 		return errors.New("'charts->num' or `hidden_charts->num` must be > 0")
 	}
@@ -21,7 +21,7 @@ func (e *Example) validateConfig() error {
 	return nil
 }
 
-func (e *Example) initCharts() (*module.Charts, error) {
+func (e *SaladGateway) initCharts() (*module.Charts, error) {
 	charts := &module.Charts{}
 
 	var ctx int

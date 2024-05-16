@@ -24,8 +24,8 @@ func init() {
 	})
 }
 
-func New() *Example {
-	return &Example{
+func New() *SaladGateway {
+	return &SaladGateway{
 		Config: Config{
 			Charts: ConfigCharts{
 				Num:  1,
@@ -57,7 +57,7 @@ type (
 	}
 )
 
-type Example struct {
+type SaladGateway struct {
 	module.Base // should be embedded by every module
 	Config      `yaml:",inline"`
 
@@ -66,11 +66,11 @@ type Example struct {
 	collectedDims map[string]bool
 }
 
-func (e *Example) Configuration() any {
+func (e *SaladGateway) Configuration() any {
 	return e.Config
 }
 
-func (e *Example) Init() error {
+func (e *SaladGateway) Init() error {
 	err := e.validateConfig()
 	if err != nil {
 		e.Errorf("config validation: %v", err)
@@ -86,15 +86,15 @@ func (e *Example) Init() error {
 	return nil
 }
 
-func (e *Example) Check() error {
+func (e *SaladGateway) Check() error {
 	return nil
 }
 
-func (e *Example) Charts() *module.Charts {
+func (e *SaladGateway) Charts() *module.Charts {
 	return e.charts
 }
 
-func (e *Example) Collect() map[string]int64 {
+func (e *SaladGateway) Collect() map[string]int64 {
 	mx, err := e.collect()
 	if err != nil {
 		e.Error(err)
@@ -106,4 +106,4 @@ func (e *Example) Collect() map[string]int64 {
 	return mx
 }
 
-func (e *Example) Cleanup() {}
+func (e *SaladGateway) Cleanup() {}
