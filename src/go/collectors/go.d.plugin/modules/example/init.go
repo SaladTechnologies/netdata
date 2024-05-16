@@ -9,14 +9,8 @@ import (
 )
 
 func (e *SaladGateway) validateConfig() error {
-	if e.Config.Charts.Num <= 0 && e.Config.HiddenCharts.Num <= 0 {
-		return errors.New("'charts->num' or `hidden_charts->num` must be > 0")
-	}
 	if e.Config.Charts.Num > 0 && e.Config.Charts.Dims <= 0 {
 		return errors.New("'charts->dimensions' must be > 0")
-	}
-	if e.Config.HiddenCharts.Num > 0 && e.Config.HiddenCharts.Dims <= 0 {
-		return errors.New("'hidden_charts->dimensions' must be > 0")
 	}
 	return nil
 }

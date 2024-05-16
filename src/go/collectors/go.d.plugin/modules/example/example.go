@@ -31,10 +31,6 @@ func New() *SaladGateway {
 				Num:  1,
 				Dims: 4,
 			},
-			HiddenCharts: ConfigCharts{
-				Num:  0,
-				Dims: 4,
-			},
 		},
 
 		randInt:       func() int64 { return rand.Int63n(100) },
@@ -44,9 +40,8 @@ func New() *SaladGateway {
 
 type (
 	Config struct {
-		UpdateEvery  int          `yaml:"update_every" json:"update_every"`
-		Charts       ConfigCharts `yaml:"charts" json:"charts"`
-		HiddenCharts ConfigCharts `yaml:"hidden_charts" json:"hidden_charts"`
+		UpdateEvery int          `yaml:"update_every" json:"update_every"`
+		Charts      ConfigCharts `yaml:"charts" json:"charts"`
 	}
 	ConfigCharts struct {
 		Type     string `yaml:"type" json:"type"`

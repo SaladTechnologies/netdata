@@ -100,12 +100,6 @@
             "fields": [
               "charts"
             ]
-          },
-          {
-            "title": "Hidden charts",
-            "fields": [
-              "hidden_charts"
-            ]
           }
         ]
       }

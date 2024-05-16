@@ -43,11 +43,6 @@ jobs:
     charts:
       num: 3
       dimensions: 5
-
-  - name: hidden_example
-    hidden_charts:
-      num: 3
-      dimensions: 5
 ```
 
 ---
