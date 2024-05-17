@@ -1,6 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-
-package example
+package sgs
 
 import (
 	_ "embed"
@@ -29,7 +27,7 @@ func New() *SaladGateway {
 		Config: Config{
 			Charts: ConfigCharts{
 				Num:  1,
-				Dims: 4,
+				Dims: 1,
 			},
 		},
 
