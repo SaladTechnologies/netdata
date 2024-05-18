@@ -64,12 +64,6 @@ func (e *SaladGateway) Configuration() any {
 }
 
 func (e *SaladGateway) Init() error {
-	err := e.validateConfig()
-	if err != nil {
-		e.Errorf("config validation: %v", err)
-		return err
-	}
-
 	charts, err := e.initCharts()
 	if err != nil {
 		e.Errorf("charts init: %v", err)
