@@ -3,8 +3,6 @@
 package sgs
 
 import (
-	"fmt"
-
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
@@ -24,21 +22,18 @@ func (e *SaladGateway) collectChart(collected map[string]int64, chart *module.Ch
 		e.Error(err)
 	}
 
-	num := e.Config.Charts.Dims
-
-	for i := 0; i < num; i++ {
-		name := fmt.Sprintf("random%d", i)
-		id := fmt.Sprintf("%s_%s", chart.ID, name)
-
-		if !e.collectedDims[id] {
-			e.collectedDims[id] = true
-
-			dim := &module.Dim{ID: id, Name: name}
-			if err := chart.AddDim(dim); err != nil {
-				e.Warning(err)
-			}
-			chart.MarkNotCreated()
-		}
-		collected[id] = int64(nodes)
+	id := "nodes"
+	name := "nodes"
+	e.collectedDims[id] = err != nil
+	collected[id] = int64(nodes)
+	dim := &module.Dim{
+		ID:   id,
+		Name: name,
 	}
+	if err := chart.AddDim(dim); err != nil {
+		e.Warning(err)
+	}
+	chart.MarkNotCreated()
+	collected[id] = int64(nodes)
+
 }
