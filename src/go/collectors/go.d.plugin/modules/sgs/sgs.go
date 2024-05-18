@@ -23,6 +23,10 @@ func init() {
 }
 
 func New() *SaladGateway {
+
+	client, _ := NewClient()
+	// TODO: handle errors
+
 	return &SaladGateway{
 		Config: Config{
 			Charts: ConfigCharts{
@@ -31,6 +35,7 @@ func New() *SaladGateway {
 			},
 		},
 
+		client:        client,
 		randInt:       func() int64 { return rand.Int63n(100) },
 		collectedDims: make(map[string]bool),
 	}
@@ -54,6 +59,7 @@ type SaladGateway struct {
 	module.Base // should be embedded by every module
 	Config      `yaml:",inline"`
 
+	client        *Client
 	randInt       func() int64
 	charts        *module.Charts
 	collectedDims map[string]bool

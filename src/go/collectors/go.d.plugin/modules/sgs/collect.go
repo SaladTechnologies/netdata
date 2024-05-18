@@ -18,6 +18,12 @@ func (e *SaladGateway) collect() (map[string]int64, error) {
 }
 
 func (e *SaladGateway) collectChart(collected map[string]int64, chart *module.Chart) {
+
+	nodes, err := e.client.GetNodeCount()
+	if err != nil {
+		e.Error(err)
+	}
+
 	num := e.Config.Charts.Dims
 
 	for i := 0; i < num; i++ {
@@ -33,10 +39,6 @@ func (e *SaladGateway) collectChart(collected map[string]int64, chart *module.Ch
 			}
 			chart.MarkNotCreated()
 		}
-		if i%2 == 0 {
-			collected[id] = e.randInt()
-		} else {
-			collected[id] = -e.randInt()
-		}
+		collected[id] = int64(nodes)
 	}
 }
