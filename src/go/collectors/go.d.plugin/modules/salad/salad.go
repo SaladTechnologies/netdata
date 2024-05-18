@@ -1,6 +1,13 @@
 package salad
 
-import "github.com/netdata/netdata/go/go.d.plugin/agent/module"
+import (
+	_ "embed"
+
+	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
+)
+
+//go:embed "config_schema.json"
+var configSchema string
 
 type Config struct {
 	UpdateEvery int `yaml:"update_every,omitempty" json:"update_every"`
@@ -14,6 +21,7 @@ type Salad struct {
 
 func init() {
 	module.Register("salad", module.Creator{
+		JobConfigSchema: configSchema,
 		Defaults: module.Defaults{
 			UpdateEvery: module.UpdateEvery,
 			Priority:    module.Priority,
@@ -38,9 +46,10 @@ func (s *Salad) Check() error {
 func (s *Salad) Cleanup() {}
 
 func (s *Salad) Collect() map[string]int64 {
-	return map[string]int64{
+	mx := map[string]int64{
 		"foo": 42,
 	}
+	return mx
 }
 
 func (s *Salad) Configuration() any {
