@@ -1,4 +1,4 @@
-package sgs
+package salad
 
 import (
 	"crypto/tls"

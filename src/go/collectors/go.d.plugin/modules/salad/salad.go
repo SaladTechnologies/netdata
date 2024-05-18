@@ -17,6 +17,7 @@ type Salad struct {
 	module.Base
 	Config `yaml:",inline"`
 	charts *module.Charts
+	client *Client
 }
 
 func init() {
@@ -31,6 +32,11 @@ func init() {
 }
 
 func (s *Salad) Init() error {
+	client, err := NewClient()
+	if err != nil {
+		return err
+	}
+	s.client = client
 	s.charts = initCharts()
 	return nil
 }
@@ -46,8 +52,12 @@ func (s *Salad) Check() error {
 func (s *Salad) Cleanup() {}
 
 func (s *Salad) Collect() map[string]int64 {
+	all, err := s.client.GetNodeCount()
+	if err != nil {
+		s.Error(err)
+	}
 	mx := map[string]int64{
-		"foo": 42,
+		"all": int64(all),
 	}
 	return mx
 }

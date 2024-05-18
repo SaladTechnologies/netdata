@@ -1,4 +1,6 @@
-package sgs
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package example
 
 import (
 	_ "embed"
@@ -19,23 +21,23 @@ func init() {
 			Disabled:    true,
 		},
 		Create: func() module.Module { return New() },
+		Config: func() any { return &Config{} },
 	})
 }
 
-func New() *SaladGateway {
-
-	client, _ := NewClient()
-	// TODO: handle errors
-
-	return &SaladGateway{
+func New() *Example {
+	return &Example{
 		Config: Config{
 			Charts: ConfigCharts{
 				Num:  1,
-				Dims: 1,
+				Dims: 4,
+			},
+			HiddenCharts: ConfigCharts{
+				Num:  0,
+				Dims: 4,
 			},
 		},
 
-		client:        client,
 		randInt:       func() int64 { return rand.Int63n(100) },
 		collectedDims: make(map[string]bool),
 	}
@@ -43,11 +45,12 @@ func New() *SaladGateway {
 
 type (
 	Config struct {
-		UpdateEvery int          `yaml:"update_every" json:"update_every"`
-		Charts      ConfigCharts `yaml:"charts" json:"charts"`
+		UpdateEvery  int          `yaml:"update_every,omitempty" json:"update_every"`
+		Charts       ConfigCharts `yaml:"charts" json:"charts"`
+		HiddenCharts ConfigCharts `yaml:"hidden_charts" json:"hidden_charts"`
 	}
 	ConfigCharts struct {
-		Type     string `yaml:"type" json:"type"`
+		Type     string `yaml:"type,omitempty" json:"type"`
 		Num      int    `yaml:"num" json:"num"`
 		Contexts int    `yaml:"contexts" json:"contexts"`
 		Dims     int    `yaml:"dimensions" json:"dimensions"`
@@ -55,21 +58,26 @@ type (
 	}
 )
 
-type SaladGateway struct {
+type Example struct {
 	module.Base // should be embedded by every module
 	Config      `yaml:",inline"`
 
-	client        *Client
 	randInt       func() int64
 	charts        *module.Charts
 	collectedDims map[string]bool
 }
 
-func (e *SaladGateway) Configuration() any {
+func (e *Example) Configuration() any {
 	return e.Config
 }
 
-func (e *SaladGateway) Init() error {
+func (e *Example) Init() error {
+	err := e.validateConfig()
+	if err != nil {
+		e.Errorf("config validation: %v", err)
+		return err
+	}
+
 	charts, err := e.initCharts()
 	if err != nil {
 		e.Errorf("charts init: %v", err)
@@ -79,15 +87,15 @@ func (e *SaladGateway) Init() error {
 	return nil
 }
 
-func (e *SaladGateway) Check() error {
+func (e *Example) Check() error {
 	return nil
 }
 
-func (e *SaladGateway) Charts() *module.Charts {
+func (e *Example) Charts() *module.Charts {
 	return e.charts
 }
 
-func (e *SaladGateway) Collect() map[string]int64 {
+func (e *Example) Collect() map[string]int64 {
 	mx, err := e.collect()
 	if err != nil {
 		e.Error(err)
@@ -99,4 +107,4 @@ func (e *SaladGateway) Collect() map[string]int64 {
 	return mx
 }
 
-func (e *SaladGateway) Cleanup() {}
+func (e *Example) Cleanup() {}
