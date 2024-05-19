@@ -29,7 +29,7 @@ Beyond charts, the local dashboard can be broken down into three key areas:
   - [Sections](#sections)
   - [Time \& date picker](#time--date-picker)
   - [Metrics menus](#metrics-menus)
-  - [Cloud menus (Spaces, Rooms, and Visited nodes)](#cloud-menus-spaces-rooms-and-visited-nodes)
+  - [Cloud menus (Spaces, War Rooms, and Visited nodes)](#cloud-menus-spaces-war-rooms-and-visited-nodes)
 - [Customizing the local dashboard](#customizing-the-local-dashboard)
 - [Custom dashboards](#custom-dashboards)
 
