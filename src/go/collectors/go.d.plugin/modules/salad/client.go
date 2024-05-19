@@ -11,6 +11,7 @@ import (
 
 type Client struct {
 	ipAddress net.IP
+	httpCliet http.Client
 }
 
 type Node struct {
@@ -19,15 +20,19 @@ type Node struct {
 }
 
 func NewClient() (*Client, error) {
+	cl := Client{}
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return &Client{
-		ipAddress: localAddr.IP,
-	}, nil
+	cl.ipAddress = localAddr.IP
+	transport := http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	cl.httpCliet = http.Client{Transport: &transport}
+	return &cl, nil
 }
 
 func (c *Client) GetNodeCount() (int, error) {
