@@ -35,21 +35,36 @@ func NewClient() (*Client, error) {
 	return &cl, nil
 }
 
-func (c *Client) GetNodeCount() (int, error) {
+func (c *Client) GetNodeCount() (int, int, int, error) {
 
 	url := fmt.Sprintf("https://%s:8443/dump/health", c.ipAddress)
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
-		return 0, err
+		return 0, 0, 0, err
 	}
 	defer resp.Body.Close()
 	payload, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, err
+		return 0, 0, 0, err
 	}
 	var nodes []Node
 	if err = json.Unmarshal(payload, &nodes); err != nil {
-		return 0, err
+		return 0, 0, 0, err
 	}
-	return len(nodes), nil
+	active := 0
+	quarnatined := 0
+	zombied := 0
+	for _, node := range nodes {
+		switch node.Status {
+		case "active":
+			active++
+		case "quarantined":
+			quarnatined++
+		case "zombied":
+			zombied++
+		default:
+			return 0, 0, 0, fmt.Errorf("Unknown node status: %s", node.Status)
+		}
+	}
+	return active, quarnatined, zombied, nil
 }

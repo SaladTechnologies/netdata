@@ -13,9 +13,18 @@ var nodesChart = module.Chart{
 func initCharts() *module.Charts {
 	charts := module.Charts{}
 	_ = nodesChart.AddDim(&module.Dim{
-		ID:   "all",
-		Name: "all",
+		ID:   "active",
+		Name: "active",
 	})
+	_ = nodesChart.AddDim(&module.Dim{
+		ID:   "quarantined",
+		Name: "quarantined",
+	})
+	_ = nodesChart.AddDim(&module.Dim{
+		ID:   "zombied",
+		Name: "zombied",
+	})
+
 	_ = charts.Add(&nodesChart)
 	return &charts
 }

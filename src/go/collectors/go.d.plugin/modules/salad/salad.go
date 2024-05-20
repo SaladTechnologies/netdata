@@ -52,12 +52,14 @@ func (s *Salad) Check() error {
 func (s *Salad) Cleanup() {}
 
 func (s *Salad) Collect() map[string]int64 {
-	all, err := s.client.GetNodeCount()
+	active, quarantined, zombied, err := s.client.GetNodeCount()
 	if err != nil {
 		s.Error(err)
 	}
 	mx := map[string]int64{
-		"all": int64(all),
+		"active":      int64(active),
+		"quarantined": int64(quarantined),
+		"zombied":     int64(zombied),
 	}
 	return mx
 }
