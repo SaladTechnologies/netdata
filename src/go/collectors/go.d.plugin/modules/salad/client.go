@@ -10,8 +10,8 @@ import (
 )
 
 type Client struct {
-	ipAddress net.IP
-	httpCliet http.Client
+	ipAddress  net.IP
+	httpClient http.Client
 }
 
 type Node struct {
@@ -31,19 +31,14 @@ func NewClient() (*Client, error) {
 	transport := http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	cl.httpCliet = http.Client{Transport: &transport}
+	cl.httpClient = http.Client{Transport: &transport}
 	return &cl, nil
 }
 
 func (c *Client) GetNodeCount() (int, error) {
-	transport := http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := http.Client{
-		Transport: &transport,
-	}
+
 	url := fmt.Sprintf("https://%s:8443/dump/health", c.ipAddress)
-	resp, err := client.Get(url)
+	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return 0, err
 	}
