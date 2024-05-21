@@ -512,7 +512,7 @@ set(ENABLE_OPENSSL True)
 pkg_check_modules(TLS IMPORTED_TARGET openssl)
 
 if(NOT TARGET PkgConfig::TLS)
-        if(OS_MACOS)
+        if(MACOS)
                 execute_process(COMMAND
                                 brew --prefix --installed openssl
                                 RESULT_VARIABLE BREW_OPENSSL
@@ -539,6 +539,7 @@ if(NOT TARGET PkgConfig::TLS)
 else()
         pkg_check_modules(CRYPTO IMPORTED_TARGET REQUIRED libcrypto)
 endif()
+
 
 #
 # figure out if we need protoc/protobuf
