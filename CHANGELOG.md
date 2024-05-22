@@ -6,6 +6,12 @@
 
 **Merged pull requests:**
 
+- Regenerate integrations.js [\#17726](https://github.com/netdata/netdata/pull/17726) ([netdatabot](https://github.com/netdatabot))
+- go.d systemdunits add "skip\_transient" [\#17725](https://github.com/netdata/netdata/pull/17725) ([ilyam8](https://github.com/ilyam8))
+- minor fix on link [\#17722](https://github.com/netdata/netdata/pull/17722) ([Ancairon](https://github.com/Ancairon))
+- Regenerate integrations.js [\#17721](https://github.com/netdata/netdata/pull/17721) ([netdatabot](https://github.com/netdatabot))
+- PR to change absolute links to relative [\#17720](https://github.com/netdata/netdata/pull/17720) ([Ancairon](https://github.com/Ancairon))
+- Change links to relative links in one doc [\#17719](https://github.com/netdata/netdata/pull/17719) ([Ancairon](https://github.com/Ancairon))
 - fix proc plugin disk\_avgsz [\#17718](https://github.com/netdata/netdata/pull/17718) ([ilyam8](https://github.com/ilyam8))
 - go.d weblog ignore reqProcTime on HTTP 101 [\#17717](https://github.com/netdata/netdata/pull/17717) ([ilyam8](https://github.com/ilyam8))
 - Fix mongodb default config indentation [\#17715](https://github.com/netdata/netdata/pull/17715) ([louis-lau](https://github.com/louis-lau))
@@ -368,7 +374,10 @@
 - Add -Wno-builtin-macro-redefined to compiler flags. [\#17209](https://github.com/netdata/netdata/pull/17209) ([Ferroin](https://github.com/Ferroin))
 - Move bundling of JSON-C to CMake. [\#17207](https://github.com/netdata/netdata/pull/17207) ([Ferroin](https://github.com/Ferroin))
 - Compatibility with Prometheus HELP [\#17191](https://github.com/netdata/netdata/pull/17191) ([thiagoftsm](https://github.com/thiagoftsm))
-- Add label for cgroup [\#17156](https://github.com/netdata/netdata/pull/17156) ([thiagoftsm](https://github.com/thiagoftsm))
+
+## [v1.45.5](https://github.com/netdata/netdata/tree/v1.45.5) (2024-05-21)
+
+[Full Changelog](https://github.com/netdata/netdata/compare/v1.45.4...v1.45.5)
 
 ## [v1.45.4](https://github.com/netdata/netdata/tree/v1.45.4) (2024-05-08)
 
@@ -421,15 +430,6 @@
 - Announce dynamic configuration capability to the cloud [\#17162](https://github.com/netdata/netdata/pull/17162) ([stelfrag](https://github.com/stelfrag))
 - go.d.plugin: execute local-listeners periodically [\#17160](https://github.com/netdata/netdata/pull/17160) ([ilyam8](https://github.com/ilyam8))
 - Install the correct service file based on systemd version [\#17159](https://github.com/netdata/netdata/pull/17159) ([tkatsoulas](https://github.com/tkatsoulas))
-- go.d.plugin: sd compose: allow multi config template [\#17157](https://github.com/netdata/netdata/pull/17157) ([ilyam8](https://github.com/ilyam8))
-- Bump google.golang.org/protobuf from 1.32.0 to 1.33.0 in /src/go/collectors/go.d.plugin [\#17154](https://github.com/netdata/netdata/pull/17154) ([dependabot[bot]](https://github.com/apps/dependabot))
-- Improve offline install error handling. [\#17153](https://github.com/netdata/netdata/pull/17153) ([Ferroin](https://github.com/Ferroin))
-- go.d.plugin: add docker service discovery [\#17152](https://github.com/netdata/netdata/pull/17152) ([ilyam8](https://github.com/ilyam8))
-- Fix macOS issue with SOCK\_CLOEXEC [\#17151](https://github.com/netdata/netdata/pull/17151) ([stelfrag](https://github.com/stelfrag))
-- Document new field on PagerDuty cloud integration [\#17149](https://github.com/netdata/netdata/pull/17149) ([juacker](https://github.com/juacker))
-- bring back old docs that were containing missing information [\#17146](https://github.com/netdata/netdata/pull/17146) ([Ancairon](https://github.com/Ancairon))
-- Update go.d.plugin packages [\#17145](https://github.com/netdata/netdata/pull/17145) ([ilyam8](https://github.com/ilyam8))
-- Check alert duration on submission to the cloud [\#17144](https://github.com/netdata/netdata/pull/17144) ([stelfrag](https://github.com/stelfrag))
 
 ## [v1.44.3](https://github.com/netdata/netdata/tree/v1.44.3) (2024-02-12)
 
