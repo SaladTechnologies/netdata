@@ -2,6 +2,7 @@ package salad
 
 import (
 	_ "embed"
+	"fmt"
 
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
@@ -52,15 +53,20 @@ func (s *Salad) Check() error {
 func (s *Salad) Cleanup() {}
 
 func (s *Salad) Collect() map[string]int64 {
-	active, quarantined, zombied, err := s.client.GetNodeCount()
+	nodesMx, destsMx, err := s.client.CollectData()
 	if err != nil {
 		s.Error(err)
 	}
-	mx := map[string]int64{
-		"active":      int64(active),
-		"quarantined": int64(quarantined),
-		"zombied":     int64(zombied),
+	mx := map[string]int64{}
+	for k, v := range nodesMx {
+		key := fmt.Sprintf("nodes.%s", k)
+		mx[key] = v
 	}
+	for k, v := range destsMx {
+		key := fmt.Sprintf("destinations.%s", k)
+		mx[key] = v
+	}
+
 	return mx
 }
 
