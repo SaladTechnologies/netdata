@@ -6,6 +6,9 @@
 
 **Merged pull requests:**
 
+- Include the Host in the HTTP header \(mqtt\) [\#17731](https://github.com/netdata/netdata/pull/17731) ([stelfrag](https://github.com/stelfrag))
+- Add alert meta info [\#17730](https://github.com/netdata/netdata/pull/17730) ([stelfrag](https://github.com/stelfrag))
+- grammar pass on alerts and notifications dir [\#17729](https://github.com/netdata/netdata/pull/17729) ([Ancairon](https://github.com/Ancairon))
 - Regenerate integrations.js [\#17726](https://github.com/netdata/netdata/pull/17726) ([netdatabot](https://github.com/netdatabot))
 - go.d systemdunits add "skip\_transient" [\#17725](https://github.com/netdata/netdata/pull/17725) ([ilyam8](https://github.com/ilyam8))
 - minor fix on link [\#17722](https://github.com/netdata/netdata/pull/17722) ([Ancairon](https://github.com/Ancairon))
@@ -428,8 +431,6 @@
 - DYNCFG: alerts improvements [\#17165](https://github.com/netdata/netdata/pull/17165) ([ktsaou](https://github.com/ktsaou))
 - go.d.plugin: update file path pattern in jsonschema [\#17164](https://github.com/netdata/netdata/pull/17164) ([ilyam8](https://github.com/ilyam8))
 - Announce dynamic configuration capability to the cloud [\#17162](https://github.com/netdata/netdata/pull/17162) ([stelfrag](https://github.com/stelfrag))
-- go.d.plugin: execute local-listeners periodically [\#17160](https://github.com/netdata/netdata/pull/17160) ([ilyam8](https://github.com/ilyam8))
-- Install the correct service file based on systemd version [\#17159](https://github.com/netdata/netdata/pull/17159) ([tkatsoulas](https://github.com/tkatsoulas))
 
 ## [v1.44.3](https://github.com/netdata/netdata/tree/v1.44.3) (2024-02-12)
 
