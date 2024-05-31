@@ -6,53 +6,54 @@ import (
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
-var destinations = []string{
-	"nflx",
-	"dsnp",
-	"bbc",
-	"iitv",
-}
-
 var nodesChart = module.Chart{
-	ID:    "nodes",
-	Title: "Nodes",
+	ID:    "nodes_statuses",
+	Title: "Nodes Per Status",
 	Units: "nodes",
 	Fam:   "nodes",
-	Ctx:   "salad.nodes",
+	Ctx:   "salad.nodes_status",
 }
 
 var destinationsChart = module.Chart{
-	ID:    "destinations",
-	Title: "Destinations",
-	Units: "destinations",
-	Ctx:   "salad.destinations",
+	ID:    "nodes_destinations",
+	Title: "Nodes Per Destination",
+	Units: "nodes",
+	Ctx:   "salad.nodes_destinations",
+}
+
+var streamsChart = module.Chart{
+	ID:    "streams",
+	Title: "Active Streams",
+	Units: "streams",
+	Ctx:   "salad.streams",
+	Dims: []*module.Dim{
+		{
+			ID:   "active",
+			Name: "active",
+		},
+	},
 }
 
 func initCharts() *module.Charts {
 	charts := module.Charts{}
 
-	_ = nodesChart.AddDim(&module.Dim{
-		ID:   "nodes.active",
-		Name: "active",
-	})
-	_ = nodesChart.AddDim(&module.Dim{
-		ID:   "nodes.quarantined",
-		Name: "quarantined",
-	})
-	_ = nodesChart.AddDim(&module.Dim{
-		ID:   "nodes.zombied",
-		Name: "zombied",
-	})
+	for _, status := range knownStatuses {
+		nodesChart.AddDim(&module.Dim{
+			ID:   fmt.Sprintf("status.%s", status),
+			Name: status,
+		})
+	}
 
-	for _, dest := range destinations {
+	for _, dest := range knownDestinations {
 		_ = destinationsChart.AddDim((&module.Dim{
-			ID:   fmt.Sprintf("destinations.%s", dest),
+			ID:   fmt.Sprintf("destination.%s", dest),
 			Name: dest,
 		}))
 	}
 
 	_ = charts.Add(&nodesChart)
 	_ = charts.Add(&destinationsChart)
+	_ = charts.Add(&streamsChart)
 
 	return &charts
 }
