@@ -14,7 +14,7 @@ Once Netdata is installed, you can see the node live in your Netdata Space and c
 
 Take a look at our [Dashboards and Charts](/docs/dashboards-and-charts/README.md) section to read more about Netdata's features.
 
-## Post-install
+Upon installation completing successfully, you should be able to see the node live in your Netdata Space and live charts in the Overview tab. [Take a look at our Dashboards and Charts](/docs/dashboards-and-charts/README.md) section to read more about Netdata's features.
 
 ### Configuration
 
@@ -22,13 +22,17 @@ If you are looking to configure your Netdata Agent installation, refer to the [r
 
 ### Data collection
 
-If Netdata didn't autodetect all the hardware, containers, services, or applications running on your node, you should learn more about [how data collectors work](/src/collectors/README.md). If there's a [supported integration](/src/collectors/COLLECTORS.md) for metrics you need, refer to its respective page and read about its requirements to configure your endpoint to publish metrics in the correct format and endpoint.
+If you are looking to configure your Netdata Agent installation, refer to the [respective section in our Documentation](/docs/netdata-agent/configuration/README.md).
 
 ### Alerts & notifications
 
-Netdata comes with hundreds of pre-configured alerts, designed by our monitoring gurus in parallel with our open-source community, but you may want to [edit alerts](/src/health/REFERENCE.md) or [enable notifications](/docs/alerts-and-notifications/notifications/README.md) to customize your Netdata experience.
+If Netdata didn't autodetect all the hardware, containers, services, or applications running on your node, you should learn more about [how data collectors work](/src/collectors/README.md). If there's a [supported collector](/src/collectors/COLLECTORS.md) for metrics you need, [configure the collector](/src/collectors/REFERENCE.md) or read about its requirements to configure your endpoint to publish metrics in the correct format and endpoint.
 
 ### Make your deployment production ready
+
+Netdata comes with hundreds of pre-configured alerts, designed by our monitoring gurus in parallel with our open-source community, but you may want to [edit alerts](/src/health/REFERENCE.md) or [enable notifications](/docs/alerts-and-notifications/notifications/README.md) to customize your Netdata experience.
+
+## Make your deployment production ready
 
 Go through our [deployment guides](/docs/deployment-guides/README.md), for suggested configuration changes for production deployments.
 
@@ -40,13 +44,14 @@ By default, Netdata's installation scripts enable automatic updates for both nig
 
 If you preferred to update your Netdata agent manually, you can disable automatic updates by using the `--no-updates`
 option when you install or update Netdata using the [automatic one-line installation
-script](https://github.com/netdata/netdata/blob/master/packaging/installer/methods/kickstart.md).
+script](/packaging/installer/methods/kickstart.md).
 
 ```bash
 wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /tmp/netdata-kickstart.sh --no-updates
 ```
 
-With automatic updates disabled, you can choose exactly when and how you [update Netdata](/packaging/installer/UPDATE.md).
+With automatic updates disabled, you can choose exactly when and how you [update
+Netdata](/packaging/installer/UPDATE.md).
 
 ### Nightly vs. Stable Releases
 

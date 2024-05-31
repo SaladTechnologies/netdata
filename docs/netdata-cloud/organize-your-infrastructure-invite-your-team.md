@@ -26,7 +26,8 @@ Manage your spaces by selecting a particular space and clicking on the gear icon
 
 Spaces use Rooms to organize your connected nodes and provide infrastructure-wide dashboards using real-time metrics and visualizations.
 
-**A node can be in N Rooms.**
+3. _Connect nodes*_, click on **Nodes** tab. Copy the claiming script to your node and run it. See the
+   [connect to Cloud doc](/src/claim/README.md) for details.
 
 Once you add nodes to a Space, all of your nodes will be visible in the **All nodes** Room. It gives you an overview of all of your nodes in this particular Space. Then you can create functional separations of your nodes into more Rooms. Every Room has its own dashboards, navigation, indicators, and management tools.
 
@@ -41,7 +42,9 @@ We recommend a few strategies for organizing your Rooms.
   If you have a user-facing SaaS product, or an internal service that this said product relies on, you may want to monitor that entire stack in a single Room. This might include Kubernetes clusters, Docker containers, proxies, databases, web servers, brokers, and more. End-to-end Rooms are valuable tools for ensuring the health and performance of your organization's essential services.
 
 - **Incident response**  
-  You can also create new Rooms as one of the first steps in your incident response process. For example, you have a user-facing web app that relies on Apache Pulsar for a message queue, and one of your nodes using the [Pulsar collector](/src/go/collectors/go.d.plugin/modules/pulsar/README.md) begins reporting a suspiciously low messages rate. You can create a Room called `$year-$month-$day-pulsar-rate`, add all your Pulsar nodes in addition to nodes they connect to, and begin diagnosing the root cause in a Room optimized for getting to resolution as fast as possible.
+  You can also create new War Rooms as one of the first steps in your incident response process.
+   For example, you have a user-facing web app that relies on Apache Pulsar for a message queue, and one of your nodes using the [Pulsar collector](/src/go/collectors/go.d.plugin/modules/pulsar/README.md) begins reporting a suspiciously low messages rate.
+   You can create a War Room called `$year-$month-$day-pulsar-rate`, add all your Pulsar nodes in addition to nodes they connect to, and begin diagnosing the root cause in a War Room optimized for getting to resolution as fast as possible.
 
 ### Add Rooms
 
@@ -59,4 +62,20 @@ Invite your entire SRE, DevOPs, or ITOps team to your Space, to give everyone ac
 
 To do so, click on **Invite Users** in the [Space](#netdata-cloud-spaces) management area or any other such prompt around the UI.
 
-Follow the instructions on screen, to provide the right access and role to the users you want to invite.
+![image](https://user-images.githubusercontent.com/70198089/227887469-e46bad55-ef5d-441a-83a5-dcc2af038678.png)
+
+
+You will be prompted to enter the email addresses of the users you want to invite to your Space. You can enter any number of email addresses, separated by a comma, to send multiple invitations at once.
+
+Next, choose the War Rooms you want to invite these users to. Once logged in, these users are not restricted only to
+these War Rooms. They can be invited to others, or join any that are public.
+
+Next, pick a role for the invited user. You can read more about [which roles are available](/docs/netdata-cloud/authentication-and-authorization/role-based-access-model.md#what-roles-are-available) based on your [subscription plan](/docs/netdata-cloud/netdata-subscription-plans.md).
+
+Click the **Send** button to send an email invitation, which will prompt them
+to [sign up](/docs/netdata-cloud/authentication-and-authorization/README.md) and join your Space.
+
+![image](https://user-images.githubusercontent.com/70198089/227888899-8511081b-0157-4e22-81d9-898cc464dcb0.png)
+
+Any unaccepted invitations remain under **Invitations awaiting response**. These invitations can be rescinded at any
+time by clicking the trash can icon.

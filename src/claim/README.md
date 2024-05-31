@@ -1,8 +1,7 @@
 # Connect Agent to Cloud
 
-This section guides you through installing and securely connecting a new Netdata Agent to Netdata Cloud via the
-encrypted Agent-Cloud Link ([ACLK](/src/aclk/README.md)). Connecting your agent to Netdata Cloud unlocks additional
-features like centralized monitoring and easier collaboration.
+This guide walks you through the process of securely connecting a Netdata Agent to Netdata Cloud via the encrypted
+Agent-Cloud Link ([ACLK](/src/aclk/README.md)).
 
 ## Connect
 
@@ -28,7 +27,12 @@ Once you've chosen your installation method, follow the provided instructions to
 
 ### Connect an Existing Agent
 
-There are two methods to connect an already installed Netdata Agent to your Netdata Cloud Space:
+- From your [War Room](#empty-war-room): This is ideal if you're setting up your first node and want to start monitoring
+  right away.
+- From the [Space Management screen](#manage-space-or-war-room-area): Click "Connect Nodes" to add a new node to your
+  existing Space.
+- From the [Nodes tab](/docs/dashboards-and-charts/nodes-tab.md): While you can see
+  connected nodes here, the connection process itself happens in the Space Management screen.
 
 - using the Netdata Cloud user interface (UI).
 - using the claiming script.
@@ -48,8 +52,35 @@ You can connect an Agent by running
 the [netdata-claim.sh](https://github.com/netdata/netdata/blob/master/src/claim/netdata-claim.sh.in) script directly.
 You can either run it with root privileges using `sudo` or as the user running the Agent (typically `netdata`).
 
-The claiming script accepts options that control the connection process. You can specify these options using the
-following format:
+### Manage Space or War Room area
+
+Accessing Management screens:
+
+- Space Management: Click the cogwheel icon in the bottom-left corner of the UI.
+- War Room Management: Click the cogwheel icon next to the War Room name at the top of the UI.
+
+Connecting a Node to a War Room:
+
+1. Select War Rooms: Choose which War Rooms you want to add the node to using the dropdown menu.
+2. Copy and Paste Script: Netdata Cloud will generate a script. Copy the entire script and paste it into your node's
+   terminal window. Press Enter to initiate the connection process.
+
+> Note: When connecting from
+> the [Nodes tab](/docs/dashboards-and-charts/nodes-tab.md), the room parameter will
+> be
+> set to the current War Room.
+
+### Connect an Agent running in Linux
+
+Netdata Cloud provides a script called kickstart.sh to simplify the process of connecting your Linux node. This script
+performs two key actions:
+
+1. Installs the Netdata Agent (if needed): If the Netdata Agent isn't already installed on your Linux node, the script
+   will take care of the installation process.
+2. Connects the Node to Netdata Cloud: The script will securely connect your node to Netdata Cloud, allowing you to
+   monitor its performance.
+
+It should be similar to:
 
 ```bash
 netdata-claim.sh -OPTION=VALUE ...
@@ -64,7 +95,127 @@ Claiming script options:
 | id     | The unique identifier of the Agent.                                |    no    | The Agent's MACHINE_GUID.                             |
 | proxy  | The URL of a proxy server to use for the connection, if necessary. |    no    |                                                       |
 
-Example:
+If you encounter any errors during the process, or the node doesn't appear in your Space within 60 seconds, refer
+to the [troubleshooting information section](#troubleshooting).
+
+To run the script, you'll need either root privileges or to run it as the user that runs the Netdata Agent on your node.
+Refer to the [Connect an Agent without root privileges section](#connect-an-agent-without-root-privileges) for more
+details.
+
+For in-depth information about the optional parameters `--claim-token`, `--claim-rooms`, and `--claim-url`,
+see [Connect node to Netdata Cloud during installation](/packaging/installer/methods/kickstart.md#connect-node-to-netdata-cloud-during-installation).
+
+### Connect an Agent without root privileges
+
+If you don't have root access, you can still connect your node to Netdata Cloud by following these steps:
+
+1. Identify the Netdata Agent User: Use the `grep` command to search your `netdata.conf` file which is located at
+   your [config directory](/docs/netdata-agent/configuration/README.md#the-netdata-config-directory)
+   and find the `run as user` setting. This will tell you which user is running the Netdata Agent.
+   ```bash
+   grep "run as user" /etc/netdata/netdata.conf
+   # run as user = netdata
+   ```
+2. Switch User: Use the `sudo su - username -s /bin/bash` command (replacing `username` with the identified user) to
+   switch to the
+   Netdata Agent user account. For example, if the `run as user` setting pointed to `netdata`, you would
+   use `sudo su - netdata -s /bin/bash`.
+3. Run the Script: Once switched to the correct user, copy and paste the script provided by Netdata Cloud into the
+   terminal and press Enter.
+
+### Connect an Agent running in Docker
+
+To ensure the **configuration and state information** needed for the Cloud connection is preserved across container
+restarts, the contents of the `/var/lib/netdata` directory must be persisted. See
+our [documentation](/packaging/docker/README.md#recommended-way) for
+details on using persistent volumes.
+
+<details>
+<summary>Known issues on older hosts with seccomp enabled</summary>
+
+The nodes running on the following hosts **cannot be claimed**:
+
+- `libseccomp` version less than v2.3.3.
+- Docker version less than v18.04.0-ce.
+- The kernel is configured with CONFIG_SECCOMP enabled.
+
+To check if your kernel supports `seccomp`:
+
+```cmd
+# grep CONFIG_SECCOMP= /boot/config-$(uname -r) 2>/dev/null || zgrep CONFIG_SECCOMP  /proc/config.gz 2>/dev/null
+CONFIG_SECCOMP=y
+```
+
+To resolve the issue, do one of the following actions:
+
+- Update to a newer version of Docker and `libseccomp` (recommended).
+- Run without the default seccomp profile (unsafe, not recommended). You can
+  pass [unconfined](https://docs.docker.com/engine/security/seccomp/#run-without-the-default-seccomp-profile) to run a
+  container without the default seccomp profile.
+- Create a custom profile and pass it for the container.
+    - Download the moby default seccomp profile and change `defaultAction` to `SCMP_ACT_TRACE` on line 2.
+
+      ```cmd
+      sudo wget https://raw.githubusercontent.com/moby/moby/master/profiles/seccomp/default.json -O /etc/docker/seccomp.json
+      sudo sed -i '2s/SCMP_ACT_ERRNO/SCMP_ACT_TRACE/' /etc/docker/seccomp.json
+      ```
+    - Specify the new policy for the container explicitly.
+        - When using `docker run`:
+          ```cmd
+          docker run -d --name=netdata \
+          --security-opt=seccomp=/etc/docker/seccomp.json \
+          ...
+          ```
+        - When using `docker-compose`:
+          > :warning: The security_opt option is ignored when deploying a stack in swarm mode.
+
+          ```yaml
+          version: '3'
+          services:
+            netdata:
+              security_opt:
+                - seccomp:/etc/docker/seccomp.json
+          ```
+        - When using `docker stack deploy`: Change the default profile globally by
+          adding `--seccomp-profile=/etc/docker/seccomp.json` to the options passed to
+          dockerd on startup.
+
+</details>
+
+There are two main approaches to connect a Netdata Agent running inside a Docker container to Netdata Cloud:
+
+1. Connecting New Agents (Automatic):
+    - This method is ideal for new container deployments.
+    - You can configure the connection automatically during startup by setting specific environment variables within
+      your Docker container.
+
+2. Connecting Existing Agents (Manual). This method is used for existing containers that haven't been connected yet:
+    - Using the Agent UI: The Netdata Agent UI provides a "Connect to netdata" button. Click on it and follow the
+      on-screen instructions.
+    - Executing Claiming Script Directly (Advanced): For advanced users, you can connect an existing Agent by executing
+      the claiming script directly within the container using the `docker exec` command.
+
+#### Using environment variables
+
+The Netdata Docker container looks for the following environment variables on startup:
+
+- `NETDATA_CLAIM_TOKEN`
+- `NETDATA_CLAIM_URL`
+- `NETDATA_CLAIM_ROOMS`
+- `NETDATA_CLAIM_PROXY`
+
+If the token and URL are specified in their corresponding variables _and_ the container is not already connected, it
+will use these values to attempt to connect to Netdata Cloud, automatically adding the node to the specified War Rooms.
+
+If a proxy is specified, it will be used for the connection process and for connecting to Netdata Cloud.
+
+These variables can be specified using any mechanism supported by your container tooling for setting environment
+variables inside containers.
+
+When using the `docker run` script, if you have an Agent container already running, it is important to know that there
+will be a short period of downtime. This is due to the process of recreating the new Agent container.
+
+The script to connect a new node to Netdata Cloud is:
 
 ```bash
 netdata-claim.sh -token=MYTOKEN1234567 -rooms=room1,room2
@@ -75,7 +226,295 @@ MYTOKEN1234567.
 
 ## Reconnect
 
-### Linux based installations
+Using the environment variables like this to handle the connection process is the preferred method of connecting Docker
+containers as it works in the widest variety of situations and simplifies configuration management.
+
+#### Using Docker compose
+
+If you use `docker compose`, you can copy the config provided by Netdata Cloud, which should be same as the one below:
+
+```bash
+version: '3'
+services:
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+  hostname: example.com # set to fqdn of host
+  ports:
+    - 19999:19999
+  restart: unless-stopped
+  cap_add:
+    - SYS_PTRACE
+  security_opt:
+    - apparmor:unconfined
+  volumes:
+    - netdataconfig:/etc/netdata
+    - netdatalib:/var/lib/netdata
+    - netdatacache:/var/cache/netdata
+    - /etc/passwd:/host/etc/passwd:ro
+    - /etc/group:/host/etc/group:ro
+    - /proc:/host/proc:ro
+    - /sys:/host/sys:ro
+    - /etc/os-release:/host/etc/os-release:ro
+  environment:
+    - NETDATA_CLAIM_TOKEN=TOKEN
+    - NETDATA_CLAIM_URL="https://app.netdata.cloud"
+    - NETDATA_CLAIM_ROOMS=ROOM1,ROOM2
+
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
+```
+
+Then run the following command in the same directory as the `docker-compose.yml` file to start the container.
+
+```bash
+docker-compose up -d
+```
+
+#### Using docker exec
+
+In order to connect a _running Netdata Agent container_, where you don't want to recreate the existing container, append
+the script offered by Netdata Cloud to a `docker exec ...` command, replacing `netdata` with the name of your running
+container:
+
+```bash
+docker exec -it netdata netdata-claim.sh -token=TOKEN -rooms=ROOM1,ROOM2 -url=https://app.netdata.cloud
+```
+
+The values for `ROOM1,ROOM2` can be found in any add-node screens, at the top of the tab. Click on them to reveal them
+and copy them to your clipboard.
+
+The script should return `Agent was successfully claimed.`. If the connection process returns errors, or if you don't
+see the node in your Space after 60 seconds, see the [troubleshooting information](#troubleshooting).
+
+### Connect an Agent running in macOS
+
+To connect a node that is running on a macOS environment the script that will be provided to you by Netdata Cloud is
+the [kickstart](/packaging/installer/methods/macos.md#install-netdata-with-our-automatic-one-line-installation-script)
+script which will install the Netdata Agent on your node, if it isn't already installed, and connect the node to Netdata
+Cloud. It should be similar to:
+
+```bash
+curl https://get.netdata.cloud/kickstart.sh > /tmp/netdata-kickstart.sh && sh /tmp/netdata-kickstart.sh --install-prefix /usr/local/ --claim-token TOKEN --claim-rooms ROOM1,ROOM2 --claim-url https://app.netdata.cloud
+```
+
+> **Note**
+>
+> Hit **Enter**. The script should return `Agent was successfully claimed.`. If the process returns errors, or if you
+> don't see the node in your Space after 60 seconds, see the [troubleshooting information](#troubleshooting).
+
+### Connect a Kubernetes cluster's parent Netdata pod
+
+Read
+our [Kubernetes installation](/packaging/installer/methods/kubernetes.md#deploy-netdata-on-your-kubernetes-cluster)
+for details on connecting a cluster's parent Netdata pod.
+
+### Connect through a proxy
+
+A Space's administrator can connect a node through HTTP(S) proxy.
+
+You should first configure the proxy in the `[cloud]` section of `netdata.conf`. The proxy settings you specify here
+will also be used to tunnel the ACLK. The default `proxy` setting is `none`.
+
+```conf
+[cloud]
+    proxy = none
+```
+
+The `proxy` setting can take one of the following values:
+
+- `none`: Do not use a proxy, even if the system configured otherwise.
+- `env`: Try to read proxy settings from set environment variables `http_proxy`.
+- `http://[user:pass@]host:ip`: The ACLK and connection process will use the specified HTTP(S) proxy.
+
+For example, a HTTP proxy setting may look like the following:
+
+```conf
+[cloud]
+    proxy = http://203.0.113.0:1080       # With an IP address
+    proxy = http://proxy.example.com:1080 # With a URL
+```
+
+You can now move on to connecting. When you connect with
+the [kickstart](/packaging/installer/README.md#automatic-one-line-installation-script)
+script, add the `--claim-proxy=` parameter and append the same proxy setting you added to `netdata.conf`.
+
+```bash
+wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /tmp/netdata-kickstart.sh --claim-token TOKEN --claim-rooms ROOM1,ROOM2 --claim-url https://app.netdata.cloud --claim-proxy http://[user:pass@]host:ip
+```
+
+> **Note**
+>
+> Hit **Enter**. The script should return `Agent was successfully claimed.`. If the process returns errors, or if you
+> don't see the node in your Space after 60 seconds, see the [troubleshooting information](#troubleshooting).
+
+### Troubleshooting
+
+If you're having trouble connecting a node, this may be because
+the [ACLK](/src/aclk/README.md) cannot connect to Cloud.
+
+With the Netdata Agent running, visit `http://NODE:19999/api/v1/info` in your browser, replacing `NODE` with the IP
+address or hostname of your Agent. The returned JSON contains four keys that will be helpful to diagnose any issues you
+might be having with the ACLK or connection process.
+
+```json
+ "cloud-enabled"
+"cloud-available"
+"agent-claimed"
+"aclk-available"
+```
+
+> **Note**
+>
+> On Netdata Agent version `1.32` (`netdata -v` to find your version) and newer, `sudo netdatacli aclk-state` can be
+> used to get some diagnostic information about ACLK. Sample output:
+
+```bash
+ACLK Available: Yes
+ACLK Implementation: Next Generation
+New Cloud Protocol Support: Yes
+Claimed: Yes
+Claimed Id: 53aa76c2-8af5-448f-849a-b16872cc4ba1
+Online: Yes
+Used Cloud Protocol: New
+```
+
+Use these keys and the information below to troubleshoot the ACLK.
+
+#### kickstart: unsupported Netdata installation
+
+If you run the kickstart script and get the following
+error `Existing install appears to be handled manually or through the system package manager.` you most probably
+installed Netdata using an unsupported package.
+
+> **Note**
+>
+> If you are using an unsupported package, such as a third-party `.deb`/`.rpm` package provided by your distribution,
+> please remove that package and reinstall using
+>
+our [recommended kickstart script](/packaging/installer/README.md#install-on-linux-with-one-line-installer).
+
+#### kickstart: Failed to write new machine GUID
+
+If you run the kickstart script but don't have privileges required for the actions done on the connecting to Netdata
+Cloud process you will get the following error:
+
+```bash
+Failed to write new machine GUID. Please make sure you have rights to write to /var/lib/netdata/registry/netdata.public.unique.id.
+```
+
+For a successful execution you will need to run the script with root privileges or run it with the user that is running
+the Agent, more details on the [Connect an Agent without root privileges](#connect-an-agent-without-root-privileges)
+section.
+
+#### bash: netdata-claim.sh: command not found
+
+If you run the claiming script and see a `command not found` error, you either installed Netdata in a non-standard
+location or are using an unsupported package. If you installed Netdata in a non-standard path using
+the `--install-prefix` option, you need to update your `$PATH` or run `netdata-claim.sh` using the full path.
+
+For example, if you installed Netdata to `/opt/netdata`, use `/opt/netdata/bin/netdata-claim.sh` to run the claiming
+script.
+
+> **Note**
+>
+> If you are using an unsupported package, such as a third-party `.deb`/`.rpm` package provided by your distribution,
+> please remove that package and reinstall using
+>
+our [recommended kickstart script](/packaging/installer/README.md#install-on-linux-with-one-line-installer).
+
+#### Connecting on older distributions (Ubuntu 14.04, Debian 8, CentOS 6)
+
+If you're running an older Linux distribution or one that has reached EOL, such as Ubuntu 14.04 LTS, Debian 8, or CentOS
+6, your Agent may not be able to securely connect to Netdata Cloud due to an outdated version of OpenSSL. These old
+versions of OpenSSL cannot perform [hostname validation](https://wiki.openssl.org/index.php/Hostname_validation), which
+helps securely encrypt SSL connections.
+
+We recommend you reinstall Netdata with
+a [static build](/packaging/installer/methods/kickstart.md#static-builds),
+which uses an up-to-date version of OpenSSL with hostname validation enabled.
+
+If you choose to continue using the outdated version of OpenSSL, your node will still connect to Netdata Cloud, albeit
+with hostname verification disabled. Without verification, your Netdata Cloud connection could be vulnerable to
+man-in-the-middle attacks.
+
+#### cloud-enabled is false
+
+If `cloud-enabled` is `false`, you probably ran the installer with `--disable-cloud` option.
+
+Additionally, check that the `enabled` setting in `var/lib/netdata/cloud.d/cloud.conf` is set to `true`:
+
+```conf
+[global]
+    enabled = true
+```
+
+To fix this issue, reinstall Netdata using
+your [preferred method](/packaging/installer/README.md) and do not add
+the `--disable-cloud` option.
+
+#### cloud-available is false / ACLK Available: No
+
+If `cloud-available` is `false` after you verified Cloud is enabled in the previous step, the most likely issue is that
+Cloud features failed to build during installation.
+
+If Cloud features fail to build, the installer continues and finishes the process without Cloud functionality as opposed
+to failing the installation altogether.
+
+We do this to ensure the Agent will always finish installing.
+
+If you can't see an explicit error in the installer's output, you can run the installer with the `--require-cloud`
+option. This option causes the installation to fail if Cloud functionality can't be built and enabled, and the
+installer's output should give you more error details.
+
+You may see one of the following error messages during installation:
+
+- `Failed to build libmosquitto. The install process will continue, but you will not be able to connect this node to Netdata Cloud.`
+- `Unable to fetch sources for libmosquitto. The install process will continue, but you will not be able to connect this node to Netdata Cloud.`
+- `Failed to build libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud.`
+- `Unable to fetch sources for libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud.`
+- `Could not find cmake, which is required to build libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud.`
+- `Could not find cmake, which is required to build JSON-C. The install process will continue, but Netdata Cloud support will be disabled.`
+- `Failed to build JSON-C. Netdata Cloud support will be disabled.`
+- `Unable to fetch sources for JSON-C. Netdata Cloud support will be disabled.`
+
+One common cause of the installer failing to build Cloud features is not having one of the following dependencies on
+your system: `cmake`, `json-c` and `OpenSSL`, including corresponding `devel` packages.
+
+You can also look for error messages in `/var/log/netdata/error.log`. Try one of the following two commands to search
+for ACLK-related errors.
+
+```bash
+less /var/log/netdata/error.log
+grep -i ACLK /var/log/netdata/error.log
+```
+
+If the installer's output does not help you enable Cloud features, contact us
+by [creating an issue on GitHub](https://github.com/netdata/netdata/issues/new?assignees=&labels=bug%2Cneeds+triage&template=BUG_REPORT.yml&title=The+installer+failed+to+prepare+the+required+dependencies+for+Netdata+Cloud+functionality)
+with details about your system and relevant output from `error.log`.
+
+#### agent-claimed is false / Claimed: No
+
+You must [connect your node](#how-to-connect-a-node).
+
+#### aclk-available is false / Online: No
+
+If `aclk-available` is `false` and all other keys are `true`, your Agent is having trouble connecting to the Cloud
+through the ACLK. Please check your system's firewall.
+
+If your Agent needs to use a proxy to access the internet, you
+must [set up a proxy for connecting](#connect-through-a-proxy).
+
+If you are certain firewall and proxy settings are not the issue, you should consult the Agent's `error.log`
+at `/var/log/netdata/error.log` and contact us
+by [creating an issue on GitHub](https://github.com/netdata/netdata/issues/new?assignees=&labels=bug%2Cneeds+triage&template=BUG_REPORT.yml&title=ACLK-available-is-false)
+with details about your system and relevant output from `error.log`.
+
+### Remove and reconnect a node
+
+#### Linux based installations
 
 To remove a node from your Space in Netdata Cloud, delete the `cloud.d/` directory in your Netdata library directory.
 
@@ -153,7 +592,7 @@ If in case of some security reason, or other, you need to revoke your previous c
 can achieve that from the Netdata Cloud UI.
 
 On any screen where you see the connect the node to Netdata Cloud command you'll see above it, next to
-the [updates channel](/docs/netdata-agent/versions-and-platforms.md), a
+the [updates channel](/docs/netdata-Agent/versions-and-platforms.md), a
 button to **Regenerate token**. This action will invalidate your previous token and generate a fresh new one.
 
 Only the administrators of a Space in Netdata Cloud can trigger this action.
@@ -328,10 +767,67 @@ Agent's command line tool, and details about the files found in `cloud.d`.
 This section defines how and whether your Agent connects to Netdata Cloud
 using the [ACLK](/src/aclk/README.md).
 
-| setting        | default                     | info                                                                                                                                   |
-|:---------------|:----------------------------|:---------------------------------------------------------------------------------------------------------------------------------------|
-| cloud base url | <https://app.netdata.cloud> | The URL for the Netdata Cloud web application. You should not change this. If you want to disable Cloud, change the `enabled` setting. |
-| enabled        | yes                         | The runtime option to disable the [Agent-Cloud link](/src/aclk/README.md) and prevent your Agent from connecting to Netdata Cloud.     |
+| setting        | default                     | info                                                                                                                                                                             |
+|:---------------|:----------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| cloud base url | <https://app.netdata.cloud> | The URL for the Netdata Cloud web application. You should not change this. If you want to disable Cloud, change the `enabled` setting.                                           |
+| enabled        | yes                         | The runtime option to disable the [Agent-Cloud link](/src/aclk/README.md) and prevent your Agent from connecting to Netdata Cloud. |
+
+### Claiming script
+
+A Space's administrator can also connect an Agent by directly calling the `netdata-claim.sh` script either with root
+privileges
+using `sudo`, or as the user running the Agent (typically `netdata`), and passing the following arguments:
+
+```sh
+-token=TOKEN
+    where TOKEN is the Space's claiming token.
+-rooms=ROOM1,ROOM2,...
+    where ROOMX is the War Room this node should be added to. This list is optional.
+-url=URL_BASE
+    where URL_BASE is the Netdata Cloud endpoint base URL. By default, this is https://app.netdata.cloud.
+-id=AGENT_ID
+    where AGENT_ID is the unique identifier of the Agent. This is the Agent's MACHINE_GUID by default.
+-hostname=HOSTNAME
+    where HOSTNAME is the result of the hostname command by default.
+-proxy=PROXY_URL
+    where PROXY_URL is the endpoint of a HTTP or HTTPS proxy.
+```
+
+For example, the following command connects an Agent and adds it to rooms `room1` and `room2`:
+
+```sh
+netdata-claim.sh -token=MYTOKEN1234567 -rooms=room1,room2
+```
+
+You should then update the `netdata` service about the result with `netdatacli`:
+
+```sh
+netdatacli reload-claiming-state
+```
+
+This reloads the Agent connection state from disk.
+
+Our recommendation is to trigger the connection process using
+the [kickstart](/packaging/installer/README.md#automatic-one-line-installation-script)
+whenever possible.
+
+### Netdata Agent command line
+
+If a Netdata Agent is running, the Space's administrator can connect a node using the `netdata` service binary with
+additional command line parameters:
+
+```sh
+-W "claim -token=TOKEN -rooms=ROOM1,ROOM2"
+```
+
+For example:
+
+```sh
+/usr/sbin/netdata -D -W "claim -token=MYTOKEN1234567 -rooms=room1,room2"
+```
+
+If need be, the user can override the Agent's defaults by providing additional arguments like those described
+[here](#claiming-script).
 
 ### Connection directory
 

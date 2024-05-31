@@ -20,10 +20,9 @@ To manage Space notification settings, you will need the following:
 | Delete                                          |             X              |            X             |
 | Add multiple configurations for the same method |                            |            X             |
 
-> **Notes**
->
-> - For Netdata provided ones, you can't delete the existing notification method configuration.
-> - Enable, Edit, and Add actions over specific notification methods will only be allowed if your plan has access to those ([service classification](/docs/alerts-and-notifications/notifications/centralized-cloud-notifications/centralized-cloud-notifications-reference.md#service-classification)).
+Notes:
+* For Netadata provided ones you can't delete the existing notification method configuration.
+* Enable, Edit and Add actions over specific notification methods will only be allowed if your plan has access to those ([service classification](/docs/alerts-and-notifications/notifications/centralized-cloud-notifications/centralized-cloud-notifications-reference.md#service-classification))
 
 ### Steps
 
@@ -55,18 +54,19 @@ To manage user-specific notification settings, you will need the following:
 - A Cloud account
 - Access to, at least, a Space
 
-Note: If an administrator has disabled a Personal [service level](/docs/alerts-and-notifications/notifications/centralized-cloud-notifications/centralized-cloud-notifications-reference.md#service-level) notification method, this will override any user-specific setting.
+Note: If an administrator has disabled a Personal [service level](/docs/alerts-and-notifications/notifications/centralized-cloud-notifications/centralized-cloud-notifications-reference.md#service-level) notification method this will override any user specific setting.
 
 ### Steps
 
-1. Click on the **User notification settings** shortcut on top of the help button.
-2. You are presented with:
-   - The Personal [service level](/docs/alerts-and-notifications/notifications/centralized-cloud-notifications/centralized-cloud-notifications-reference.md#service-level) notification methods you can manage.
-   - The list of Spaces and Rooms inside those where you have access to.
-   - If you're an Administrator, Manager, or Troubleshooter, you'll also see the Rooms from a Space you don't have access to on the **All Rooms** tab, and you can activate notifications for them by joining the Room.
-3. On this modal you will be able to:
-   1. **Enable/Disable** the notification method for you; this applies across all Spaces and Rooms.
-      - Use the toggle to enable or disable the notification method.
-   2. **Define what notifications you want** per Space/Room: All Alerts and unreachable, All Alerts, Critical only, or No notifications.
-   3. **Activate notifications** for a Room you aren't a member of.
-      - From the **All Rooms** tab, click on the Join button for the Room(s) you want.
+1. Click on the **User notification settings** shortcut on top of the help button
+1. You are presented with:
+   - The Personal [service level](/docs/alerts-and-notifications/notifications/centralized-cloud-notifications/centralized-cloud-notifications-reference.md#service-level) notification methods you can manage
+   - The list spaces and rooms inside those where you have access to
+   - If you're an administrator, Manager or Troubleshooter you'll also see the Rooms from a space you don't have access to on **All Rooms** tab and you can activate notifications for them by joining the room
+1. On this modal you will be able to:
+   1. **Enable/Disable** the notification method for you, this applies accross all spaces and rooms
+      - Use the toggle enable or disable the notification method
+   1. **Define what notifications you want** to per space/room: All Alerts and unreachable, All Alerts, Critical only or No notifications
+   1. **Activate notifications** for a room you aren't a member of
+      - From the **All Rooms** tab click on the Join button for the room(s) you want
+

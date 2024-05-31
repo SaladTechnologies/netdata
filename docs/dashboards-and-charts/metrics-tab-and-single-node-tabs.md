@@ -1,6 +1,6 @@
 # Metrics tab and single node tabs
 
-The Metrics tab is where all the time series [charts](/docs/dashboards-and-charts/netdata-charts.md) for all the nodes of a Room are located.
+The Metrics tab is where all the time series [charts](/docs/dashboards-and-charts/netdata-charts.md) for all the nodes of a War Room are located.
 
 You can also see single-node dashboards, essentially the same dashboard the Metrics tab offers but only for one node. They are reached from most places in the UI, often by clicking the name of a node.
 

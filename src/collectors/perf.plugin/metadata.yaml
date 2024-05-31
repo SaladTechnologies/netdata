@@ -43,7 +43,7 @@ modules:
         list:
           - title: Install perf plugin
             description: |
-              If you are [using our official native DEB/RPM packages](https://github.com/netdata/netdata/blob/master/packaging/installer/UPDATE.md#determine-which-installation-method-you-used), make sure the `netdata-plugin-perf` package is installed.
+              If you are [using our official native DEB/RPM packages](/packaging/installer/UPDATE.md#determine-which-installation-method-you-used), make sure the `netdata-plugin-perf` package is installed.
           - title: Enable the perf plugin
             description: |
               The plugin is disabled by default because the number of PMUs is usually quite limited and it is not desired to allow Netdata to struggle silently for PMUs, interfering with other performance monitoring software.

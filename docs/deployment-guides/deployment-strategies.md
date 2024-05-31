@@ -8,7 +8,7 @@ You can read about [Standalone Deployment](/docs/deployment-guides/standalone-de
 
 The sections below go into configuration examples about these deployment concepts.
 
-## Deployment Configuration Details
+The Agent will act as a _stand-alone_ Agent by default, and this is great to start out with for small setups and home labs. By [connecting each Agent to Cloud](/src/claim/README.md), you can see an overview of all your nodes, with aggregated charts and centralized alerting, without setting up a Parent.
 
 ### Stand-alone
 
@@ -20,11 +20,33 @@ For setups involving Parent and Child Agents, they need to be configured for [st
 
 This will instruct the Child to stream data to the Parent and the Parent to accept streaming connections for one or more Child Agents. To secure this connection, both need a shared API key (to replace the string `API_KEY` in the examples below). Additionally, the Child can be configured with one or more addresses of Parent Agents (`PARENT_IP_ADDRESS`).
 
-An API key is a key created with `uuidgen` and is used for authentication and/or customization on the Parent side. For example, a Child can stream using the API key, and a Parent can be configured to accept connections from the Child, but it can also apply different options for Children by using multiple different API keys. The easiest setup uses just one API key for all Child Agents.
+This setup allows for leaner Child nodes and is good for setups with more than a handful of nodes. Metrics data remains accessible if the Child node is temporarily unavailable or decommissioned, although there is no failover in case the Parent becomes unavailable.
+
+
+### Active–Active Parent Deployment
+
+For high availability, Parents can be configured to stream data for their children between them, and keep the data sets in sync. Child Agents are configured with the addresses of both Parent Agents, but will only stream to one of them at a time. When that Parent becomes unavailable, it reconnects to another. When the first Parent becomes available again, that Parent will catch up by receiving the backlog from the second.
+
+With both Parent Agents connected to Cloud, Cloud will route queries to either Parent transparently, depending on their availability. Alerts trigger on either Parent will stream to Cloud, and Cloud will deduplicate and debounce state changes to prevent spurious notifications.
+
+![image](https://github.com/netdata/netdata/assets/116741/6ae2b10c-7f7d-4503-aac4-0a9381c6f80b)
+
+
+## Configuration Details
+
+### Stand-alone Deployment
+
+The stand-alone setup is configured out of the box with reasonable defaults, but please consult our [configuration documentation](/docs/netdata-agent/configuration/cheatsheet.md) for details, including the overview of [common configuration changes](/docs/netdata-agent/configuration/common-configuration-changes.md).
+
+### Parent – Child Deployment
+
+For setups involving Child and Parent Agents, the Agents need to be configured for [_streaming_](/src/streaming/README.md), through the configuration file `stream.conf`. This will instruct the Child to stream data to the Parent and the Parent to accept streaming connections for one or more Child Agents. To secure this connection, both need set up a shared API key (to replace the string `API_KEY` in the examples below). Additionally, the Child is configured with one or more addresses of Parent Agents (`PARENT_IP_ADDRESS`).
+
+An API key is a key created with `uuidgen` and is used for authentication and/or customization in the Parent side. I.e. a Child will stream using the API key, and a Parent is configured to accept connections from Child, but can also apply different options for children by using multiple different API keys. The easiest setup uses just one API key for all Child Agents.
 
 #### Child config
 
-As mentioned above, we do not recommend to claim the Child to Cloud directly during your setup.
+As mentioned above, the recommendation is to not claim the Child to Cloud directly during your setup, avoiding establishing an [ACLK](/src/aclk/README.md) connection.
 
 This is done in order to reduce the footprint of the Netdata Agent on your production system, as some capabilities can be switched OFF for the Child and kept ON for the Parent.
 
@@ -77,7 +99,7 @@ To edit `stream.conf`, use again the [edit-config](docs/netdata-agent/configurat
 
 #### Parent config
 
-For the Parent, besides setting up streaming, this example also provides configuration for multiple [tiers of metrics storage](/docs/netdata-agent/configuration/optimizing-metrics-database/change-metrics-storage.md#calculate-the-system-resources-ram-disk-space-needed-to-store-metrics), for 10 Children, with about 2k metrics each. This allows for:
+For the Parent, besides setting up streaming, the example will also provide an example configuration of multiple [tiers](/src/database/engine/README.md#tiering) of metrics [storage](/docs/netdata-agent/configuration/optimizing-metrics-database/change-metrics-storage.md), for 10 children, with about 2k metrics each.
 
 - 1s granularity at tier 0 for 1 week
 - 1m granularity at tier 1 for 1 month
@@ -184,17 +206,25 @@ On both Netdata Parent and all Child Agents, edit `stream.conf` by using the [ed
 
 We strongly recommend the following configuration changes for production deployments:
 
-1. Understand Netdata's [security and privacy design](/docs/security-and-privacy-design/README.md) and [secure your nodes](/docs/netdata-agent/securing-netdata-agents.md)
+1. Understand Netdata's [security and privacy design](/docs/security-and-privacy-design/README.md) and 
+   [secure your nodes](/docs/netdata-agent/securing-netdata-agents.md)
 
    To safeguard your infrastructure and comply with your organization's security policies.
 
-2. [Optimize the Netdata Agents system utilization and performance](/docs/netdata-agent/configuration/optimize-the-netdata-agents-performance.md)
+2. Set up [streaming and replication](/src/streaming/README.md) to:
+
+   - Offload Netdata Agents running on production systems and free system resources for the production applications running on them.
+   - Isolate production systems from the rest of the world and improve security.
+   - Increase data retention.
+   - Make your data highly available.
+
+3. [Optimize the Netdata Agents system utilization and performance](/docs/netdata-agent/configuration/optimize-the-netdata-agents-performance.md)
 
    To save valuable system resources, especially when running on weak IoT devices.
 
 We also suggest that you:
 
-1. [Use Netdata Cloud to access the dashboards](/docs/netdata-cloud/README.md)
+1. [Use Netdata Cloud to access the dashboards](/docs/netdata-cloud/monitor-your-infrastructure.md)
 
    For increased security, user management and access to our latest features, tools and troubleshooting solutions.
 
