@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"slices"
 )
 
 type Client struct {
@@ -36,79 +37,45 @@ func NewClient() (*Client, error) {
 	return &cl, nil
 }
 
-func (c *Client) GetNodeCount() (int, int, int, error) {
-
+func (c *Client) CollectHealth(mx map[string]int64) error {
 	url := fmt.Sprintf("https://%s:8443/dump/health", c.ipAddress)
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
-		return 0, 0, 0, err
+		return err
 	}
 	defer resp.Body.Close()
 	payload, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, 0, 0, err
+		return err
 	}
 	var nodes []Node
 	if err = json.Unmarshal(payload, &nodes); err != nil {
-		return 0, 0, 0, err
+		return err
 	}
-	active := 0
-	quarnatined := 0
-	zombied := 0
-	for _, node := range nodes {
-		switch node.Status {
-		case "active":
-			active++
-		case "quarantined":
-			quarnatined++
-		case "zombied":
-			zombied++
-		default:
-			return 0, 0, 0, fmt.Errorf("unknown node status: %s", node.Status)
-		}
+	for _, status := range knownStatuses {
+		key := fmt.Sprintf("status.%s", status)
+		mx[key] = 0
 	}
-	return active, quarnatined, zombied, nil
-}
 
-func (c *Client) CollectData() (map[string]int64, map[string]int64, error) {
-	nodeMx := map[string]int64{}
-	destMx := map[string]int64{}
-
-	url := fmt.Sprintf("https://%s:8443/dump/health", c.ipAddress)
-	resp, err := c.httpClient.Get(url)
-	if err != nil {
-		return nodeMx, destMx, err
-	}
-	defer resp.Body.Close()
-	payload, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nodeMx, destMx, err
-	}
-	var nodes []Node
-	if err = json.Unmarshal(payload, &nodes); err != nil {
-		return nodeMx, destMx, err
-	}
-	nodeMx["active"] = 0
-	nodeMx["quarantined"] = 0
-	nodeMx["zombied"] = 0
-
-	for _, dest := range destinations {
-		destMx[dest] = 0
+	for _, dest := range knownDestinations {
+		key := fmt.Sprintf("destination.%s", dest)
+		mx[key] = 0
 	}
 
 	for _, node := range nodes {
-		_, ok := nodeMx[node.Status]
-		if !ok {
-			return nodeMx, destMx, fmt.Errorf("unknown node status: %s", node.Status)
+		if slices.Index(knownStatuses, node.Status) == -1 {
+			return fmt.Errorf("unknown node status: %s", node.Status)
 		}
-		nodeMx[node.Status]++
-		for _, dest := range destinations {
+		key := fmt.Sprintf("status.%s", node.Status)
+		mx[key]++
+		for _, dest := range knownDestinations {
 			v, ok := node.DCSummary[dest]
 			if v && ok {
-				destMx[dest]++
+				key := fmt.Sprintf("destination.%s", dest)
+				mx[key]++
 			}
 		}
 	}
 
-	return nodeMx, destMx, nil
+	return nil
 }

@@ -2,9 +2,22 @@ package salad
 
 import (
 	_ "embed"
-	"fmt"
 
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
+)
+
+var (
+	knownDestinations = []string{
+		"nflx",
+		"dsnp",
+		"bbc",
+		"iitv",
+	}
+	knownStatuses = []string{
+		"active",
+		"quarantined",
+		"zombied",
+	}
 )
 
 //go:embed "config_schema.json"
@@ -53,18 +66,10 @@ func (s *Salad) Check() error {
 func (s *Salad) Cleanup() {}
 
 func (s *Salad) Collect() map[string]int64 {
-	nodesMx, destsMx, err := s.client.CollectData()
+	mx := map[string]int64{}
+	err := s.client.CollectHealth(mx)
 	if err != nil {
 		s.Error(err)
-	}
-	mx := map[string]int64{}
-	for k, v := range nodesMx {
-		key := fmt.Sprintf("nodes.%s", k)
-		mx[key] = v
-	}
-	for k, v := range destsMx {
-		key := fmt.Sprintf("destinations.%s", k)
-		mx[key] = v
 	}
 
 	return mx
