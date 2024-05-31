@@ -64,26 +64,22 @@ func (c *Client) CollectHealth(mx map[string]int64) error {
 		return err
 	}
 	for _, status := range knownStatuses {
-		key := fmt.Sprintf("status.%s", status)
-		mx[key] = 0
+		mx[status] = 0
 	}
 
 	for _, dest := range knownDestinations {
-		key := fmt.Sprintf("destination.%s", dest)
-		mx[key] = 0
+		mx[dest] = 0
 	}
 
 	for _, node := range nodes {
 		if slices.Index(knownStatuses, node.Status) == -1 {
 			return fmt.Errorf("unknown node status: %s", node.Status)
 		}
-		key := fmt.Sprintf("status.%s", node.Status)
-		mx[key]++
+		mx[node.Status]++
 		for _, dest := range knownDestinations {
 			v, ok := node.DCSummary[dest]
 			if v && ok {
-				key := fmt.Sprintf("destination.%s", dest)
-				mx[key]++
+				mx[dest]++
 			}
 		}
 	}
@@ -92,7 +88,7 @@ func (c *Client) CollectHealth(mx map[string]int64) error {
 }
 
 func (c *Client) CollectCounters(mx map[string]int64) error {
-	url := fmt.Sprintf("https://%s:8443/counters/?raw", c.ipAddress)
+	url := fmt.Sprintf("https://%s:8443/counters?raw", c.ipAddress)
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return err
