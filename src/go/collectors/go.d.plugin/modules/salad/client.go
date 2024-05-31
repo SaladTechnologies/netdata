@@ -3,6 +3,7 @@ package salad
 import (
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -19,6 +20,13 @@ type Node struct {
 	MachineId string          `json:"MachineId"`
 	Status    string          `json:"Status"`
 	DCSummary map[string]bool `json:"DCSummary"`
+}
+
+type Counters struct {
+	Error           int64 `json:"Error"`
+	ErrorClosed     int64 `json:"ErrorClosed"`
+	Streaming       int64 `json:"Streaming"`
+	StreamingClosed int64 `json:"StreamingClosed"`
 }
 
 func NewClient() (*Client, error) {
@@ -44,6 +52,9 @@ func (c *Client) CollectHealth(mx map[string]int64) error {
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(resp.Status)
+	}
 	payload, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -53,29 +64,48 @@ func (c *Client) CollectHealth(mx map[string]int64) error {
 		return err
 	}
 	for _, status := range knownStatuses {
-		key := fmt.Sprintf("status.%s", status)
-		mx[key] = 0
+		mx[status] = 0
 	}
 
 	for _, dest := range knownDestinations {
-		key := fmt.Sprintf("destination.%s", dest)
-		mx[key] = 0
+		mx[dest] = 0
 	}
 
 	for _, node := range nodes {
 		if slices.Index(knownStatuses, node.Status) == -1 {
 			return fmt.Errorf("unknown node status: %s", node.Status)
 		}
-		key := fmt.Sprintf("status.%s", node.Status)
-		mx[key]++
+		mx[node.Status]++
 		for _, dest := range knownDestinations {
 			v, ok := node.DCSummary[dest]
 			if v && ok {
-				key := fmt.Sprintf("destination.%s", dest)
-				mx[key]++
+				mx[dest]++
 			}
 		}
 	}
 
+	return nil
+}
+
+func (c *Client) CollectCounters(mx map[string]int64) error {
+	url := fmt.Sprintf("https://%s:8443/counters?raw", c.ipAddress)
+	resp, err := c.httpClient.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(resp.Status)
+	}
+
+	payload, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var counters Counters
+	if err = json.Unmarshal(payload, &counters); err != nil {
+		return err
+	}
+	mx["streams.active"] = counters.Streaming - counters.StreamingClosed
 	return nil
 }

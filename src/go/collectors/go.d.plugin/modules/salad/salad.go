@@ -71,6 +71,10 @@ func (s *Salad) Collect() map[string]int64 {
 	if err != nil {
 		s.Error(err)
 	}
+	err = s.client.CollectCounters(mx)
+	if err != nil {
+		s.Error(err)
+	}
 
 	return mx
 }

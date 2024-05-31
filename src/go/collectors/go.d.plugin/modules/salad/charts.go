@@ -1,8 +1,6 @@
 package salad
 
 import (
-	"fmt"
-
 	"github.com/netdata/netdata/go/go.d.plugin/agent/module"
 )
 
@@ -28,7 +26,7 @@ var streamsChart = module.Chart{
 	Ctx:   "salad.streams",
 	Dims: []*module.Dim{
 		{
-			ID:   "active",
+			ID:   "streams.active",
 			Name: "active",
 		},
 	},
@@ -39,15 +37,13 @@ func initCharts() *module.Charts {
 
 	for _, status := range knownStatuses {
 		nodesChart.AddDim(&module.Dim{
-			ID:   fmt.Sprintf("status.%s", status),
-			Name: status,
+			ID: status,
 		})
 	}
 
 	for _, dest := range knownDestinations {
 		_ = destinationsChart.AddDim((&module.Dim{
-			ID:   fmt.Sprintf("destination.%s", dest),
-			Name: dest,
+			ID: dest,
 		}))
 	}
 
