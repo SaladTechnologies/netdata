@@ -28,7 +28,7 @@ var streamsChart = module.Chart{
 	Ctx:   "salad.streams",
 	Dims: []*module.Dim{
 		{
-			ID:   "active",
+			ID:   "streams.active",
 			Name: "active",
 		},
 	},

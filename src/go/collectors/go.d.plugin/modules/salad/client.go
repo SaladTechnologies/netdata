@@ -3,6 +3,7 @@ package salad
 import (
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -19,6 +20,13 @@ type Node struct {
 	MachineId string          `json:"MachineId"`
 	Status    string          `json:"Status"`
 	DCSummary map[string]bool `json:"DCSummary"`
+}
+
+type Counters struct {
+	Error           int64 `json:"Error"`
+	ErrorClosed     int64 `json:"ErrorClosed"`
+	Streaming       int64 `json:"Streaming"`
+	StreamingClosed int64 `json:"StreamingClosed"`
 }
 
 func NewClient() (*Client, error) {
@@ -44,6 +52,9 @@ func (c *Client) CollectHealth(mx map[string]int64) error {
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(resp.Status)
+	}
 	payload, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -77,5 +88,28 @@ func (c *Client) CollectHealth(mx map[string]int64) error {
 		}
 	}
 
+	return nil
+}
+
+func (c *Client) CollectCounters(mx map[string]int64) error {
+	url := fmt.Sprintf("https://%s:8443/counters/?raw", c.ipAddress)
+	resp, err := c.httpClient.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(resp.Status)
+	}
+
+	payload, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var counters Counters
+	if err = json.Unmarshal(payload, &counters); err != nil {
+		return err
+	}
+	mx["streams.active"] = counters.Streaming - counters.StreamingClosed
 	return nil
 }
