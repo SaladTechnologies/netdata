@@ -11,9 +11,14 @@ import (
 	"slices"
 )
 
+type State struct {
+	Errors int64
+}
+
 type Client struct {
 	ipAddress  net.IP
 	httpClient http.Client
+	state      *State
 }
 
 type Node struct {
@@ -107,5 +112,14 @@ func (c *Client) CollectCounters(mx map[string]int64) error {
 		return err
 	}
 	mx["streams.active"] = counters.Streaming - counters.StreamingClosed
+	if c.state == nil {
+		mx["errors.new"] = 0
+		c.state = &State{
+			Errors: counters.Error,
+		}
+	} else {
+		mx["errors.new"] = counters.Error - c.state.Errors
+		c.state.Errors = counters.Error
+	}
 	return nil
 }

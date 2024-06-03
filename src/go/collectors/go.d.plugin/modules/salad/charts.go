@@ -32,6 +32,19 @@ var streamsChart = module.Chart{
 	},
 }
 
+var errorsChart = module.Chart{
+	ID:    "errors",
+	Title: "New Errors",
+	Units: "errors",
+	Ctx:   "salad.errors",
+	Dims: []*module.Dim{
+		{
+			ID:   "errors.new",
+			Name: "errors",
+		},
+	},
+}
+
 func initCharts() *module.Charts {
 	charts := module.Charts{}
 
@@ -50,6 +63,7 @@ func initCharts() *module.Charts {
 	_ = charts.Add(&nodesChart)
 	_ = charts.Add(&destinationsChart)
 	_ = charts.Add(&streamsChart)
+	_ = charts.Add(&errorsChart)
 
 	return &charts
 }
